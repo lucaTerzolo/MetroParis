@@ -16,15 +16,31 @@ public class Model {
 	
 	private Graph<Fermata,DefaultEdge> grafo;
 	
+	private List<Fermata> fermate;
+	private Map<Integer,Fermata> fermateIdMap;
+	
+	public List<Fermata> getFermate(){
+		if(this.fermate==null) {
+			MetroDAO dao=new MetroDAO();
+			this.fermate=dao.getAllFermate();
+			
+			this.fermateIdMap= new HashMap<Integer,Fermata> ();
+			for(Fermata f:this.fermate)
+				fermateIdMap.put(f.getIdFermata(), f);
+		}
+		return this.fermate;
+	}
+	
+	public List<Fermata> calcoloPercorso(Fermata partenza, Fermata arrivo){
+		creaGrafo();
+		
+	}
 	public void creaGrafo() {
 		grafo=new SimpleDirectedGraph<Fermata,DefaultEdge>(DefaultEdge.class);
 		MetroDAO dao=new MetroDAO();
 		
 		List<Fermata> fermate=dao.getAllFermate();
-		Map<Integer,Fermata> fermateIdMap= new HashMap<Integer,Fermata> ();
 		
-		for(Fermata f:fermate)
-			fermateIdMap.put(f.getIdFermata(), f);
 		
 		Graphs.addAllVertices(grafo, fermate);
 		/*
