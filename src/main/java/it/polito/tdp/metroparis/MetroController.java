@@ -31,7 +31,15 @@ public class MetroController {
 
     @FXML
     void handleCerca(ActionEvent event) {
-
+    	Fermata partenza=boxPartenza.getValue();
+    	Fermata arrivo=boxArrivo.getValue();
+    	
+    	if(partenza!=null &&arrivo!=null && !partenza.equals(arrivo)) {
+    		List<Fermata> percorso=model.calcoloPercorso(partenza, arrivo);
+    		txtResult.setText(percorso.toString());
+    	}else {
+    		txtResult.setText("Devi selezionare due stazioni, diverse tra loro\n");
+    	}
     }
 
     @FXML

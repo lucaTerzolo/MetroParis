@@ -1,5 +1,6 @@
 package it.polito.tdp.metroparis.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,8 @@ public class Model {
 	
 	public List<Fermata> calcoloPercorso(Fermata partenza, Fermata arrivo){
 		creaGrafo();
-		
+		visitaGrafo(partenza);
+		return null;
 	}
 	public void creaGrafo() {
 		grafo=new SimpleDirectedGraph<Fermata,DefaultEdge>(DefaultEdge.class);
@@ -43,106 +45,33 @@ public class Model {
 		
 		
 		Graphs.addAllVertices(grafo, fermate);
-		/*
-		 
-		// METODO 1: Itero su ogni coppia di vertici
-		for(Fermata partenza: fermate) {
-			for(Fermata arrivo: fermate) {
-				if(dao.isFermateConnesse(partenza, arrivo)) {
-					grafo.addEdge(partenza, arrivo);
-				}
-			}
-		}
-		
-		//Per stampare tutto il grafo e il numero di vertici (Fermate) e archi (Collegamenti)
-		System.out.println(grafo);
-		System.out.println("Vertici= "+this.grafo.vertexSet().size());
-		System.out.println("Archi= "+this.grafo.edgeSet().size());
-		
-		*/
-		
-		/*
-		
-		// METODO 2: dato ciascun vertice, trova i vertici ad esso adiacenti
-		for(Fermata partenza:fermate) {
-			List<Integer> idConnesse=dao.getIdFermateConnesse(partenza);
-			for(Integer id:idConnesse) {
-				Fermata arrivo=null;
-				for(Fermata f:fermate) { //Avrei potuto inserire anche grafo.vertexSet()
-					if(f.getIdFermata()==id) {
-						arrivo=f;
-						break;
-					}
-				}
-				grafo.addEdge(partenza, arrivo);
-				
-			}
-		}
-		System.out.println(grafo);
-		System.out.println("Vertici= "+this.grafo.vertexSet().size());
-		System.out.println("Archi= "+this.grafo.edgeSet().size());
-		
-		*/
-		
-		/*
 
-		// METODO 2B: il dao restituisce un elenco di oggetti fermata
-		for(Fermata partenza: fermate) {
-			List<Fermata> arrivi=dao.getFermateConnesse(partenza);
-			for(Fermata arrivo:arrivi) {
-				grafo.addEdge(partenza, arrivo);
-			}
-		}
-		System.out.println(grafo);
-		System.out.println("Vertici= "+this.grafo.vertexSet().size());
-		System.out.println("Archi= "+this.grafo.edgeSet().size());
-		
-		*/
-		
-		/*
-		// METODO 2C: il dao restituisce un elenco di ID numerici, che converto in oggetti 
-		//    		  tramite una Map<Integer,Fermata> - "Identity Map"
-		
-		for(Fermata partenza: fermate) {
-			List<Integer> idConnesse=dao.getIdFermateConnesse(partenza);
-			for(int id:idConnesse) {
-				Fermata arrivo = fermateIdMap.get(id);
-				grafo.addEdge(partenza, arrivo);
-			}
-		}
-		System.out.println(grafo);
-		System.out.println("Vertici= "+this.grafo.vertexSet().size());
-		System.out.println("Archi= "+this.grafo.edgeSet().size());
-		*/
-		
-		// METODO 3: faccio una sola query che mi restituisca le coppie di fermate da 
-		// 			 collegare
-		// Preferisco 3C: usare Identity map
-		
 		List<CoppiaId> fermateDaCollegare = dao.getAllFermateConnesse();
 		for(CoppiaId coppia:fermateDaCollegare) {
 			grafo.addEdge(fermateIdMap.get(coppia.getIdPartenza()),
 						  fermateIdMap.get(coppia.getIdArrivo())
 						  );
 		}
-		System.out.println(grafo);
-		System.out.println("Vertici= "+this.grafo.vertexSet().size());
-		System.out.println("Archi= "+this.grafo.edgeSet().size());
-		
-		visitaGrafo(fermate.get(0));
-		
 	}
 	
 	public void visitaGrafo(Fermata partenza) {
 		GraphIterator<Fermata,DefaultEdge> visita=
 				new BreadthFirstIterator<>(grafo,partenza);
+		Map<Fermata,Fermata> alberoInverso=new HashMap<>();
+		alberoInverso.put(partenza, null); //Radice albero
+		
+		visita.addTraversalListener(new RegistroAlberoVisita(alberoInverso,this.grafo));
 		int cnt=0;
 		while(visita.hasNext()) {
 			Fermata f=visita.next();
-			System.out.println(f);
-			cnt++;
 		}
-		System.out.println("\nVertici connessi sono: "+cnt);
+		
+		List<Fermata> percorso=new ArrayList<>();
+		fermata=arrivo
+		while(fermata!=null) {
+			fermata=alberoInverso.get(fermata);
+			percorso.add(fermata);
+		}
 	}
 	
 }
