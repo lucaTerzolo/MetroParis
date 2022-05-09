@@ -21,27 +21,23 @@ public class Model {
 	private Map<Integer,Fermata> fermateIdMap;
 	
 	public List<Fermata> getFermate(){
-		if(this.fermate==null) {
-			MetroDAO dao=new MetroDAO();
-			this.fermate=dao.getAllFermate();
+		if(this.fermate == null) {
+			MetroDAO dao = new MetroDAO();
+			this.fermate = dao.getAllFermate();
 			
-			this.fermateIdMap= new HashMap<Integer,Fermata> ();
+			this.fermateIdMap = new HashMap<Integer,Fermata> ();
 			for(Fermata f:this.fermate)
 				fermateIdMap.put(f.getIdFermata(), f);
 		}
 		return this.fermate;
 	}
 	
-	public List<Fermata> calcoloPercorso(Fermata partenza, Fermata arrivo){
-		creaGrafo();
-		visitaGrafo(partenza);
-		return null;
-	}
+	
 	public void creaGrafo() {
 		grafo=new SimpleDirectedGraph<Fermata,DefaultEdge>(DefaultEdge.class);
 		MetroDAO dao=new MetroDAO();
 		
-		List<Fermata> fermate=dao.getAllFermate();
+		List<Fermata> fermate = dao.getAllFermate();
 		
 		
 		Graphs.addAllVertices(grafo, fermate);
@@ -54,24 +50,34 @@ public class Model {
 		}
 	}
 	
-	public void visitaGrafo(Fermata partenza) {
-		GraphIterator<Fermata,DefaultEdge> visita=
-				new BreadthFirstIterator<>(grafo,partenza);
-		Map<Fermata,Fermata> alberoInverso=new HashMap<>();
+	public List<Fermata> calcoloPercorso(Fermata partenza, Fermata arrivo){
+		creaGrafo();
+		Map<Fermata,Fermata> alberoInverso=visitaGrafo(partenza);
+		
+		Fermata corrente=arrivo;
+		List<Fermata> percorso=new ArrayList<>();
+		
+		while(corrente!=null) { //nodo di partenza ha come valore nell'albero inverso null
+			percorso.add(0, corrente); //per aggiungere in testa alla lista
+			corrente=alberoInverso.get(corrente);
+		}
+		return percorso;
+	}
+	
+	public Map<Fermata,Fermata> visitaGrafo(Fermata partenza) {
+		GraphIterator<Fermata,DefaultEdge> visita = new BreadthFirstIterator<>(grafo,partenza);
+		
+		Map<Fermata,Fermata> alberoInverso = new HashMap<>();
 		alberoInverso.put(partenza, null); //Radice albero
 		
 		visita.addTraversalListener(new RegistroAlberoVisita(alberoInverso,this.grafo));
-		int cnt=0;
+		int cnt = 0;
+		
 		while(visita.hasNext()) {
-			Fermata f=visita.next();
+			Fermata f = visita.next();
 		}
 		
-		List<Fermata> percorso=new ArrayList<>();
-		fermata=arrivo
-		while(fermata!=null) {
-			fermata=alberoInverso.get(fermata);
-			percorso.add(fermata);
-		}
+		return alberoInverso;
 	}
 	
 }

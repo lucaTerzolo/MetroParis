@@ -36,16 +36,15 @@ public class RegistroAlberoVisita implements TraversalListener<Fermata,DefaultEd
 	@Override
 	public void edgeTraversed(EdgeTraversalEvent<DefaultEdge> e) {
 		
-		
 		Fermata source=this.grafo.getEdgeSource(e.getEdge());
 		Fermata target=this.grafo.getEdgeTarget(e.getEdge());
 		
 		if(!alberoInverso.containsKey(target)) {
 			alberoInverso.put(target, source);
-			System.out.println(target+" si raggiunge da "+source);
+			//System.out.println(target+" si raggiunge da "+source);
 		}else if(!alberoInverso.containsKey(source)) {
 			alberoInverso.put(source, target);
-			System.out.println(source+" si raggiunge da "+target);
+			//System.out.println(source+" si raggiunge da "+target);
 		}
 	}
 
